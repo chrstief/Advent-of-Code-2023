@@ -36,21 +36,29 @@ function createRegex(mapName: string) {
 }
 
 function determineRanges(parsedNumbers: number[]) {
+  const numberOfMappings = parsedNumbers.reduce(
+    (accumulator, value, index) =>
+      (index + 1) % 3 == 0 ? accumulator + value : accumulator,
+    0
+  );
+  // console.log(numberOfMappings);
   let ranges: {
     source: number;
     destination: number;
-  }[] = [];
+  }[] = new Array(numberOfMappings);
 
+  let rangesIndexOffset = 0
   for (let i = 0; i < parsedNumbers.length; i += 3) {
     const destinationRangeStart = parsedNumbers[i];
     const sourceRangeStart = parsedNumbers[i + 1];
     const range = parsedNumbers[i + 2];
     for (let j = 0; j < range; j++) {
-      ranges.push({
+      ranges[rangesIndexOffset + j] = {
         source: sourceRangeStart + j,
         destination: destinationRangeStart + j,
-      });
+      };
     }
+    rangesIndexOffset += range
   }
   return ranges.sort((a, b) => a.source - b.source);
 }
