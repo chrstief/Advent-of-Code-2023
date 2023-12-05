@@ -12,6 +12,41 @@ const seeds = filteredSeeds.map((seed, index) => ({
 
 const mapNames: string[] = input.match(/[a-z-]+(?= map:)/g) ?? [];
 // console.log(mapNames);
+const maps = mapNames.map((mapName) => {
+  const parsedNumbers =
+    input
+      .match(createRegex(`${mapName} map`))
+      ?.map((string) => Number(string)) ?? [];
+
+  let ranges: {
+    destinationRangeStart: number;
+    sourceRangeStart: number;
+    range: number;
+    sourceRangeEnd: number;
+    translation: number;
+  }[] = [];
+
+  for (let i = 0; i < parsedNumbers.length; i += 3) {
+    const destinationRangeStart = parsedNumbers[i];
+    const sourceRangeStart = parsedNumbers[i + 1];
+    const range = parsedNumbers[i + 2];
+    const sourceRangeEnd = sourceRangeStart + range;
+    const translation = destinationRangeStart - sourceRangeStart;
+    ranges.push({
+      destinationRangeStart: destinationRangeStart,
+      sourceRangeStart: sourceRangeStart,
+      range: range,
+      sourceRangeEnd: sourceRangeEnd,
+      translation: translation,
+    });
+  }
+
+  return {
+    mapName: mapName,
+    ranges: ranges,
+  };
+});
+// console.log(maps)
 
 const lowestLocation = seeds.reduce((lowestLocationSoFar, seed) => {
   let lowestLocationThisBatch = Infinity;
@@ -32,20 +67,11 @@ function createRegex(mapName: string) {
 }
 
 function getFinalLocation(seed: number) {
-  const finalLocation = mapNames.reduce((source, mapName) => {
+  const finalLocation = maps.reduce((source, map) => {
     // console.log({source});
-    const parsedNumbers =
-      input
-        .match(createRegex(`${mapName} map`))
-        ?.map((string) => Number(string)) ?? [];
-    // console.log(mapName,parsedNumbers)
-
-    for (let i = 0; i < parsedNumbers.length; i += 3) {
-      const destinationRangeStart = parsedNumbers[i];
-      const sourceRangeStart = parsedNumbers[i + 1];
-      const range = parsedNumbers[i + 2];
-      if (source >= sourceRangeStart && source < sourceRangeStart + range)
-        return source + (destinationRangeStart - sourceRangeStart);
+    for (const range of map.ranges) {
+      if (source >= range.sourceRangeStart && source < range.sourceRangeEnd)
+        return source + range.translation;
     }
 
     return source;
