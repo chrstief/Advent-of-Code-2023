@@ -7,27 +7,20 @@ const seeds =
 const mapNames: string[] = input.match(/[a-z-]+(?= map:)/g) ?? [];
 // console.log(mapNames);
 
-const maps = mapNames.map((mapName) => {
+const finalLocation = mapNames.reduce((accumulator,mapName) => {
   const parsedNumbers =
     input
       .match(createRegex(`${mapName} map`))
       ?.map((string) => Number(string)) ?? [];
   // console.log(mapName,parsedNumbers)
-
-  return {
+  const map={
     mapName: mapName,
     ranges: determineRanges(parsedNumbers),
-  };
-});
-// console.log(maps);
+  }
+  // console.log({map})
 
-const soil = translateToDestination(seeds, maps[0]);
-const fertilizer = translateToDestination(soil, maps[1]);
-const water = translateToDestination(fertilizer, maps[2]);
-const light = translateToDestination(water, maps[3]);
-const temperature = translateToDestination(light, maps[4]);
-const humidity = translateToDestination(temperature, maps[5]);
-const finalLocation = translateToDestination(humidity, maps[6]);
+  return translateToDestination(accumulator, map)
+},seeds);
 
 console.log(Math.min(...finalLocation));
 
