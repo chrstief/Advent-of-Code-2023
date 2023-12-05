@@ -1,4 +1,4 @@
-const input: string = await Deno.readTextFile("./Day_05/a_sample.txt");
+const input: string = await Deno.readTextFile("./Day_05/a.txt");
 
 const seeds =
   input.match(createRegex("seeds"))?.map((string) => Number(string)) ?? [];
@@ -14,53 +14,23 @@ const finalLocation = mapNames.reduce((accumulator, mapName) => {
       ?.map((string) => Number(string)) ?? [];
   // console.log(mapName,parsedNumbers)
 
-  const ranges = determineRanges(parsedNumbers);
-  // console.log({ranges})
+  const destinations = accumulator.map((source) => {
+    for (let i = 0; i < parsedNumbers.length; i += 3) {
+      const destinationRangeStart = parsedNumbers[i];
+      const sourceRangeStart = parsedNumbers[i + 1];
+      const range = parsedNumbers[i + 2];
+      if (source >= sourceRangeStart && source < sourceRangeStart + range)
+        return source + (destinationRangeStart - sourceRangeStart);
+    }
+    return source;
+  });
 
-  return translateToDestination(accumulator, ranges);
+  return destinations;
 }, seeds);
 
+// console.log(finalLocation);
 console.log(Math.min(...finalLocation));
 
 function createRegex(mapName: string) {
   return new RegExp(`(?<=${mapName}:\\s(\\d+\\s)*)\\d+`, "g");
-}
-
-function determineRanges(parsedNumbers: number[]) {
-  const numberOfMappings = parsedNumbers.reduce(
-    (accumulator, value, index) =>
-      (index + 1) % 3 == 0 ? accumulator + value : accumulator,
-    0
-  );
-  // console.log(numberOfMappings);
-  let ranges: {
-    source: number;
-    destination: number;
-  }[] = new Array(numberOfMappings);
-
-  let rangesIndexOffset = 0;
-  for (let i = 0; i < parsedNumbers.length; i += 3) {
-    const destinationRangeStart = parsedNumbers[i];
-    const sourceRangeStart = parsedNumbers[i + 1];
-    const range = parsedNumbers[i + 2];
-    for (let j = 0; j < range; j++) {
-      ranges[rangesIndexOffset + j] = {
-        source: sourceRangeStart + j,
-        destination: destinationRangeStart + j,
-      };
-    }
-    rangesIndexOffset += range;
-  }
-  return ranges.sort((a, b) => a.source - b.source);
-}
-
-function translateToDestination(
-  start: typeof seeds,
-  ranges: ReturnType<typeof determineRanges>
-) {
-  return start.map((source) => {
-    return (
-      ranges.find((range) => source == range.source)?.destination ?? source
-    );
-  });
 }
