@@ -7,20 +7,18 @@ const seeds =
 const mapNames: string[] = input.match(/[a-z-]+(?= map:)/g) ?? [];
 // console.log(mapNames);
 
-const finalLocation = mapNames.reduce((accumulator,mapName) => {
+const finalLocation = mapNames.reduce((accumulator, mapName) => {
   const parsedNumbers =
     input
       .match(createRegex(`${mapName} map`))
       ?.map((string) => Number(string)) ?? [];
   // console.log(mapName,parsedNumbers)
-  const map={
-    mapName: mapName,
-    ranges: determineRanges(parsedNumbers),
-  }
-  // console.log({map})
 
-  return translateToDestination(accumulator, map)
-},seeds);
+  const ranges = determineRanges(parsedNumbers);
+  // console.log({ranges})
+
+  return translateToDestination(accumulator, ranges);
+}, seeds);
 
 console.log(Math.min(...finalLocation));
 
@@ -40,7 +38,7 @@ function determineRanges(parsedNumbers: number[]) {
     destination: number;
   }[] = new Array(numberOfMappings);
 
-  let rangesIndexOffset = 0
+  let rangesIndexOffset = 0;
   for (let i = 0; i < parsedNumbers.length; i += 3) {
     const destinationRangeStart = parsedNumbers[i];
     const sourceRangeStart = parsedNumbers[i + 1];
@@ -51,18 +49,18 @@ function determineRanges(parsedNumbers: number[]) {
         destination: destinationRangeStart + j,
       };
     }
-    rangesIndexOffset += range
+    rangesIndexOffset += range;
   }
   return ranges.sort((a, b) => a.source - b.source);
 }
 
 function translateToDestination(
   start: typeof seeds,
-  map: (typeof maps)[number]
+  ranges: ReturnType<typeof determineRanges>
 ) {
   return start.map((source) => {
     return (
-      map.ranges.find((range) => source == range.source)?.destination ?? source
+      ranges.find((range) => source == range.source)?.destination ?? source
     );
   });
 }
