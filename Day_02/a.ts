@@ -1,4 +1,4 @@
-const input: string = await Deno.readTextFile("./Day_02/a.txt");
+const input: string = await Bun.file("./Day_02/a.txt").text();
 
 const lines = input.split("\n");
 
@@ -39,7 +39,10 @@ const possibleGames = allGames.filter((game) =>
   )
 );
 
-const initialValue = 0
-const answer = possibleGames.reduce((accumulator, game) => accumulator + game.id, initialValue)
+const initialValue = 0;
+const answer = possibleGames.reduce(
+  (accumulator, game) => accumulator + game.id,
+  initialValue
+);
 
 console.log(answer);

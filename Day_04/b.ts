@@ -1,4 +1,4 @@
-const input: string = await Deno.readTextFile("./Day_04/a.txt");
+const input: string = await Bun.file("./Day_04/a.txt").text();
 
 const lines = input.split("\n");
 

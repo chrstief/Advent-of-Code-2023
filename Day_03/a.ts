@@ -1,4 +1,4 @@
-const input: string = await Deno.readTextFile("./Day_03/a.txt");
+const input: string = await Bun.file("./Day_03/a.txt").text();
 
 const lines = input.split("\n");
 
@@ -36,13 +36,17 @@ function isPartNumber(lineIndex: number, start: number, end: number) {
   const thisLine = lines[lineIndex].substring(start - 1, end + 2);
   const lineBelow = lines[lineIndex + 1]?.substring(start - 1, end + 2);
 
-  console.log('lineAbove', lineAbove,includesSymbol(lineAbove))
-  console.log('thisLine', thisLine,includesSymbol(thisLine))
-  console.log('lineBelow',lineBelow,includesSymbol(lineBelow))
+  console.log("lineAbove", lineAbove, includesSymbol(lineAbove));
+  console.log("thisLine", thisLine, includesSymbol(thisLine));
+  console.log("lineBelow", lineBelow, includesSymbol(lineBelow));
 
-  return includesSymbol(thisLine) || includesSymbol(lineAbove) || includesSymbol(lineBelow);
+  return (
+    includesSymbol(thisLine) ||
+    includesSymbol(lineAbove) ||
+    includesSymbol(lineBelow)
+  );
 }
 
-function includesSymbol(line:string) {
+function includesSymbol(line: string) {
   return /[^.\w]/.test(line);
 }

@@ -1,4 +1,4 @@
-const input: string = await Deno.readTextFile("./Day_05/a.txt");
+const input: string = await Bun.file("./Day_05/a.txt").text();
 
 const seedsAndRanges =
   input.match(createRegex("seeds"))?.map((string) => Number(string)) ?? [];
