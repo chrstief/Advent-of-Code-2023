@@ -53,7 +53,6 @@ function findReflectionLine(pattern: Pattern, startIndex: number) {
     pattern.length - globalReflectionLine - 2
   );
 
-  let possibleSmudges = 0;
   for (let i = 1; i <= linesFromReflectionToEnd; i++) {
     const up = pattern[globalReflectionLine - i];
     const down = pattern[globalReflectionLine + 1 + i];
@@ -63,7 +62,7 @@ function findReflectionLine(pattern: Pattern, startIndex: number) {
         break;
       case 1:
         if (!smudgeCleaned) {
-          possibleSmudges++;
+          smudgeCleaned = true;
           break;
         }
       default:
@@ -71,11 +70,8 @@ function findReflectionLine(pattern: Pattern, startIndex: number) {
     }
   }
 
-  if (possibleSmudges > 1)
-    return findReflectionLine(pattern, globalReflectionLine + 1);
-  if (possibleSmudges == 0 && !smudgeCleaned) {
-    console.log({ pattern });
-  }
+  if (!smudgeCleaned) return 0;
+
   return globalReflectionLine + 1;
 }
 
@@ -86,3 +82,6 @@ function getNumberOfDifferences(str1: string, str2: string) {
     .map((char1, index) => char1 != str2[index]);
   return differences.filter((difference) => difference).length;
 }
+
+
+console.log(horizontalReflectionLines.findIndex((hrl,index)=>hrl==0&&verticalReflectionLines[index]==0))
