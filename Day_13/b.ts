@@ -30,20 +30,22 @@ console.log(answer);
 
 function findReflectionLine(pattern: Pattern, startIndex: number) {
   let smudgeCleaned = false;
-  const arrayToCheck = pattern
-    .map((row, index) => {
-      //first pass cleaning right on the reflection line
-      if (getNumberOfDifferences(row, pattern[index + 1]) == 1) {
-        smudgeCleaned = true;
-        return pattern[index + 1];
-      }
-      return row;
-    })
-    .slice(startIndex);
+  const arrayToCheck = pattern.slice(startIndex);
 
-  const localReflectionLine = arrayToCheck.findIndex(
-    (row, index) => row == arrayToCheck[index + 1]
-  );
+  const localReflectionLine = arrayToCheck.findIndex((row, index, array) => {
+    const numberOfDifferences = getNumberOfDifferences(row, array[index + 1]);
+    switch (numberOfDifferences) {
+      case 0:
+        return true;
+      case 1:
+        if (!smudgeCleaned) {
+          smudgeCleaned = true;
+          return true;
+        }
+      default:
+        return false;
+    }
+  });
   if (localReflectionLine == -1) return 0;
 
   const globalReflectionLine = localReflectionLine + startIndex;
@@ -70,7 +72,8 @@ function findReflectionLine(pattern: Pattern, startIndex: number) {
     }
   }
 
-  if (!smudgeCleaned) return 0;
+  if (!smudgeCleaned)
+    return findReflectionLine(pattern, globalReflectionLine + 1);
 
   return globalReflectionLine + 1;
 }
@@ -83,5 +86,8 @@ function getNumberOfDifferences(str1: string, str2: string) {
   return differences.filter((difference) => difference).length;
 }
 
-
-console.log(horizontalReflectionLines.findIndex((hrl,index)=>hrl==0&&verticalReflectionLines[index]==0))
+console.log(
+  horizontalReflectionLines.findIndex(
+    (hrl, index) => hrl == 0 && verticalReflectionLines[index] == 0
+  )
+);
