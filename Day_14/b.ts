@@ -99,9 +99,7 @@ const stones = allElements.flat().filter((element) => !(element.type == "."));
 // printPlatform("start");
 const roundStones = stones.filter((element) => element.type == "O");
 
-const cycles: {
-  [key: string]: number[];
-} = {};
+const states: Map<string,number[]>=new Map()
 
 for (let cycle = 1; cycle <= 126; cycle++) {
   console.time("time elapsed");
@@ -122,15 +120,12 @@ for (let cycle = 1; cycle <= 126; cycle++) {
     console.timeEnd("time elapsed");
   }
   // const snapshot = generatePlatform().flat().join("");
-  // // console.log(snapshot)
-  // if (cycles.hasOwnProperty(snapshot)) {
-  //   cycles[snapshot].push(cycle);
-  // } else {
-  //   cycles[snapshot] = [cycle];
-  // }
+  // const cycles = states.get(snapshot)||[]
+  // cycles.push(cycle)
+  // states.set(snapshot,cycles)
 }
 
-console.log("unique states: ", Object.keys(cycles).length);
+console.log("unique states: ", states.size);
 
 /*Looking at the snapshots from running a.sample.txt there are only 9 distinct states of the platform.
 After the first 2, the platform continues cycling through the next 7 states.
