@@ -1,12 +1,38 @@
 const input: string = await Bun.file("./Day_14/a.txt").text();
 
-type Element = {
-  type: string;
+type Direction = {
   row: number;
   column: number;
 };
+const north: Direction = {
+  row: -1,
+  column: 0,
+};
 
-const platform = input.split("\n").map((row) => row.split(""));
+class Element {
+  type: string;
+  row: number;
+  column: number;
+  isRoundStone: boolean;
+  isFreeSpace: boolean;
+
+  constructor(type: string, row: number, column: number) {
+    this.type = type;
+    this.row = row;
+    this.column = column;
+    this.isRoundStone = type === "O";
+    this.isFreeSpace = type == ".";
+  }
+}
+
+const platform: Element[][] = input
+  .split("\n")
+  .map((row, rowIndex) =>
+    row
+      .split("")
+      .map((type, columnIndex) => new Element(type, rowIndex, columnIndex))
+  );
+// platform.forEach((row) => console.log(row.map((element) => element.type)));
 const rows = platform.length;
 const columns = platform[0].length;
 
@@ -17,15 +43,11 @@ while (platformMutated) {
   weight = 0;
   for (let row = 0; row < rows; row++) {
     for (let column = 0; column < columns; column++) {
-      const element: Element = {
-        type: platform[row][column],
-        row: row,
-        column: column,
-      };
-      if (isRoundStone(element)) {
+      const element = platform[row][column];
+      if (element.isRoundStone) {
         weight += rows - row;
         const NorhternNeigbor = getNorhternNeigbor(element);
-        if (NorhternNeigbor && isFreeSpace(NorhternNeigbor)) {
+        if (NorhternNeigbor && NorhternNeigbor.isFreeSpace) {
           moveElementNorth(element);
           platformMutated = true;
         }
@@ -35,22 +57,21 @@ while (platformMutated) {
 }
 
 console.log(weight);
+// platform.forEach((row) => console.log(row.map((element) => element.type)));
 
-function isRoundStone(element: Element) {
-  return element.type === "O";
-}
-function isFreeSpace(element: Element) {
-  return element.type == ".";
-}
 function getNorhternNeigbor(element: Element): Element | undefined {
   if (element.row == 0) return undefined;
-  return {
-    type: platform[element.row - 1][element.column],
-    row: element.row - 1,
-    column: element.column,
-  };
+  return platform[element.row - 1][element.column];
 }
 function moveElementNorth(element: Element) {
-  platform[element.row][element.column] = ".";
-  platform[element.row - 1][element.column] = element.type;
+  platform[element.row][element.column] = new Element(
+    ".",
+    element.row,
+    element.column
+  );
+  platform[element.row - 1][element.column] = new Element(
+    "O",
+    element.row - 1,
+    element.column
+  );
 }
