@@ -1,4 +1,4 @@
-const input: string = await Bun.file("./Day_14/a.txt").text();
+const input: string = await Bun.file("./Day_14/a_sample.txt").text();
 
 type Direction = {
   row: number;
@@ -23,6 +23,19 @@ class Element {
     this.isRoundStone = type === "O";
     this.isFreeSpace = type == ".";
   }
+
+  moveNorth() {
+    const positionsOfElementsInFront = platformObjects
+      .filter(
+        (element) => element.row < this.row && element.column == this.column
+      )
+      .map((elementInFront) => elementInFront.row);
+    if (positionsOfElementsInFront.length == 0) {
+      this.row = 0;
+    } else {
+      this.row = Math.max(...positionsOfElementsInFront) + 1;
+    }
+  }
 }
 
 const platform: Element[][] = input
@@ -32,46 +45,33 @@ const platform: Element[][] = input
       .split("")
       .map((type, columnIndex) => new Element(type, rowIndex, columnIndex))
   );
-// platform.forEach((row) => console.log(row.map((element) => element.type)));
 const rows = platform.length;
 const columns = platform[0].length;
 
-let platformMutated = true;
-let weight = 0;
-while (platformMutated) {
-  platformMutated = false;
-  weight = 0;
-  for (let row = 0; row < rows; row++) {
-    for (let column = 0; column < columns; column++) {
-      const element = platform[row][column];
-      if (element.isRoundStone) {
-        weight += rows - row;
-        const NorthernNeighbor = getNorthernNeighbor(element);
-        if (NorthernNeighbor && NorthernNeighbor.isFreeSpace) {
-          moveElementNorth(element);
-          platformMutated = true;
-        }
-      }
-    }
-  }
+const platformObjects = platform
+  .flat()
+  .filter((element) => !element.isFreeSpace);
+printPlatform("start");
+const roundStones = platformObjects.filter((element) => element.isRoundStone);
+roundStones.forEach((roundStone) => roundStone.moveNorth());
+printPlatform("north");
+console.log(calculateWeight());
+
+function printPlatform(heading: string) {
+  const array: string[][] = Array.from({ length: rows }, () =>
+    Array.from({ length: columns }, () => ".")
+  );
+  platformObjects.forEach((element) => {
+    array[element.row][element.column] = element.type;
+  });
+  console.log(heading);
+  array.forEach((row) => console.log(row));
 }
 
-console.log(weight);
-// platform.forEach((row) => console.log(row.map((element) => element.type)));
-
-function getNorthernNeighbor(element: Element): Element | undefined {
-  if (element.row == 0) return undefined;
-  return platform[element.row - 1][element.column];
-}
-function moveElementNorth(element: Element) {
-  platform[element.row][element.column] = new Element(
-    ".",
-    element.row,
-    element.column
-  );
-  platform[element.row - 1][element.column] = new Element(
-    "O",
-    element.row - 1,
-    element.column
-  );
+function calculateWeight() {
+  let weight = 0;
+  roundStones.forEach((element) => {
+    weight += rows - element.row;
+  });
+  return weight;
 }
