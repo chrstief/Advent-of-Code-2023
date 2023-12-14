@@ -1,0 +1,8 @@
+image: gitpod/workspace-bun
+tasks:
+  - name: install dependencies
+    init: bun install
+vscode:
+    extensions:
+        - esbenp.prettier-vscode
+        - oven.bun-vscode
