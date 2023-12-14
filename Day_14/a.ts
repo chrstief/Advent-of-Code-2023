@@ -46,8 +46,8 @@ while (platformMutated) {
       const element = platform[row][column];
       if (element.isRoundStone) {
         weight += rows - row;
-        const NorhternNeigbor = getNorhternNeigbor(element);
-        if (NorhternNeigbor && NorhternNeigbor.isFreeSpace) {
+        const NorthernNeighbor = getNorthernNeighbor(element);
+        if (NorthernNeighbor && NorthernNeighbor.isFreeSpace) {
           moveElementNorth(element);
           platformMutated = true;
         }
@@ -59,7 +59,7 @@ while (platformMutated) {
 console.log(weight);
 // platform.forEach((row) => console.log(row.map((element) => element.type)));
 
-function getNorhternNeigbor(element: Element): Element | undefined {
+function getNorthernNeighbor(element: Element): Element | undefined {
   if (element.row == 0) return undefined;
   return platform[element.row - 1][element.column];
 }
