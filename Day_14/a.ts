@@ -1,58 +1,43 @@
 const input: string = await Bun.file("./Day_14/a_sample.txt").text();
 
-type Direction = {
-  row: number;
-  column: number;
-};
-const north: Direction = {
-  row: -1,
-  column: 0,
-};
-
 class Element {
   type: string;
   row: number;
   column: number;
-  isRoundStone: boolean;
-  isFreeSpace: boolean;
 
   constructor(type: string, row: number, column: number) {
     this.type = type;
     this.row = row;
     this.column = column;
-    this.isRoundStone = type === "O";
-    this.isFreeSpace = type == ".";
   }
 
   moveNorth() {
-    const positionsOfElementsInFront = platformObjects
+    const positionsOfStonesInFront = stones
       .filter(
         (element) => element.row < this.row && element.column == this.column
       )
       .map((elementInFront) => elementInFront.row);
-    if (positionsOfElementsInFront.length == 0) {
+    if (positionsOfStonesInFront.length == 0) {
       this.row = 0;
     } else {
-      this.row = Math.max(...positionsOfElementsInFront) + 1;
+      this.row = Math.max(...positionsOfStonesInFront) + 1;
     }
   }
 }
 
-const platform: Element[][] = input
+const allElements: Element[][] = input
   .split("\n")
   .map((row, rowIndex) =>
     row
       .split("")
       .map((type, columnIndex) => new Element(type, rowIndex, columnIndex))
   );
-const rows = platform.length;
-const columns = platform[0].length;
+const rows = allElements.length;
+const columns = allElements[0].length;
 
-const platformObjects = platform
-  .flat()
-  .filter((element) => !element.isFreeSpace);
+const stones = allElements.flat().filter((element) => !(element.type == "."));
 printPlatform("start");
-const roundStones = platformObjects.filter((element) => element.isRoundStone);
+const roundStones = stones.filter((element) => element.type == "O");
 roundStones.forEach((roundStone) => roundStone.moveNorth());
 printPlatform("north");
 console.log(calculateWeight());
@@ -61,7 +46,7 @@ function printPlatform(heading: string) {
   const array: string[][] = Array.from({ length: rows }, () =>
     Array.from({ length: columns }, () => ".")
   );
-  platformObjects.forEach((element) => {
+  stones.forEach((element) => {
     array[element.row][element.column] = element.type;
   });
   console.log(heading);
