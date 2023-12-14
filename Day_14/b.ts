@@ -2,11 +2,21 @@ class Element {
   type: string;
   row: number;
   column: number;
+  movedNorth: boolean;
+  movedSouth: boolean;
+  movedWest: boolean;
+  movedEast: boolean;
+  stuck: boolean;
 
   constructor(type: string, row: number, column: number) {
     this.type = type;
     this.row = row;
     this.column = column;
+    this.movedNorth = false;
+    this.movedSouth = false;
+    this.movedWest = false;
+    this.movedEast = false;
+    this.stuck = false;
   }
 
   moveNorth() {
@@ -15,10 +25,17 @@ class Element {
         (element) => element.row < this.row && element.column == this.column
       )
       .map((elementInFront) => elementInFront.row);
-    if (positionsOfStonesInFront.length == 0) {
-      this.row = 0;
+
+    const updatedPosition =
+      positionsOfStonesInFront.length == 0
+        ? 0
+        : Math.max(...positionsOfStonesInFront) + 1;
+
+    if (this.row != updatedPosition) {
+      this.movedNorth = true;
+      this.row = updatedPosition;
     } else {
-      this.row = Math.max(...positionsOfStonesInFront) + 1;
+      this.movedNorth = false;
     }
   }
   moveSouth() {
@@ -27,10 +44,16 @@ class Element {
         (element) => element.row > this.row && element.column == this.column
       )
       .map((elementInFront) => elementInFront.row);
-    if (positionsOfStonesInFront.length == 0) {
-      this.row = rows - 1;
+    const updatedPosition =
+      positionsOfStonesInFront.length == 0
+        ? rows - 1
+        : Math.min(...positionsOfStonesInFront) - 1;
+
+    if (this.row != updatedPosition) {
+      this.movedSouth = true;
+      this.row = updatedPosition;
     } else {
-      this.row = Math.min(...positionsOfStonesInFront) - 1;
+      this.movedSouth = false;
     }
   }
   moveWest() {
@@ -39,10 +62,16 @@ class Element {
         (element) => element.column < this.column && element.row == this.row
       )
       .map((elementInFront) => elementInFront.column);
-    if (positionsOfStonesInFront.length == 0) {
-      this.column = 0;
+    const updatedPosition =
+      positionsOfStonesInFront.length == 0
+        ? 0
+        : Math.max(...positionsOfStonesInFront) + 1;
+
+    if (this.column != updatedPosition) {
+      this.movedWest = true;
+      this.column = updatedPosition;
     } else {
-      this.column = Math.max(...positionsOfStonesInFront) + 1;
+      this.movedWest = false;
     }
   }
   moveEast() {
@@ -51,11 +80,25 @@ class Element {
         (element) => element.column > this.column && element.row == this.row
       )
       .map((elementInFront) => elementInFront.column);
-    if (positionsOfStonesInFront.length == 0) {
-      this.column = columns - 1;
+    const updatedPosition =
+      positionsOfStonesInFront.length == 0
+        ? columns - 1
+        : Math.min(...positionsOfStonesInFront) - 1;
+
+    if (this.column != updatedPosition) {
+      this.movedEast = true;
+      this.column = updatedPosition;
     } else {
-      this.column = Math.min(...positionsOfStonesInFront) - 1;
+      this.movedEast = false;
     }
+  }
+  checkIfStuck() {
+    this.stuck = !(
+      this.movedNorth ||
+      this.movedSouth ||
+      this.movedWest ||
+      this.movedEast
+    );
   }
 }
 
@@ -95,22 +138,39 @@ const stones = allElements.flat().filter((element) => !(element.type == "."));
 // printPlatform("start");
 const roundStones = stones.filter((element) => element.type == "O");
 
-for (let cycle = 1; cycle <= 1000000000; cycle++) {
-  console.time('');
+for (let cycle = 1; cycle <= 3; cycle++) {
+  console.time("");
   roundStones.sort((a, b) => a.row - b.row);
-  roundStones.forEach((roundStone) => roundStone.moveNorth());
+  roundStones
+    .filter((roundStone) => !roundStone.stuck)
+    .forEach((roundStone) => roundStone.moveNorth());
   // printPlatform("north");
   roundStones.sort((a, b) => a.column - b.column);
-  roundStones.forEach((roundStone) => roundStone.moveWest());
+  roundStones
+    .filter((roundStone) => !roundStone.stuck)
+    .forEach((roundStone) => roundStone.moveWest());
   // printPlatform("west");
   roundStones.sort((a, b) => b.row - a.row);
-  roundStones.forEach((roundStone) => roundStone.moveSouth());
+  roundStones
+    .filter((roundStone) => !roundStone.stuck)
+    .forEach((roundStone) => roundStone.moveSouth());
   // printPlatform("south");
   roundStones.sort((a, b) => b.column - a.column);
-  roundStones.forEach((roundStone) => roundStone.moveEast());
+  roundStones
+    .filter((roundStone) => !roundStone.stuck)
+    .forEach((roundStone) => roundStone.moveEast());
+
+  roundStones
+    .filter((roundStone) => !roundStone.stuck)
+    .forEach((roundStone) => roundStone.checkIfStuck());
   if (cycle % 100000 == 0) {
     console.log(`Cycle ${cycle}`);
-    console.timeEnd('');
+    console.log(
+      "not stuck:",
+      roundStones.filter((roundStone) => !roundStone.stuck).length
+    );
+    console.timeEnd("");
   }
+  printPlatform(`Cycle ${cycle}`);
 }
 console.log(calculateWeight());
